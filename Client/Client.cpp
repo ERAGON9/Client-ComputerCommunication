@@ -112,29 +112,102 @@ void main()
 		// The fourth argument is an idicator specifying the way in which the call is made (0 for default).
 		// The two last arguments hold the details of the server to communicate with. 
 		// NOTE: the last argument should always be the actual size of the client's data-structure (i.e. sizeof(sockaddr)).
-		bytesSent = sendto(connSocket, sendBuff, (int)strlen(sendBuff), 0, (const sockaddr*)&server, sizeof(server));
-		if (SOCKET_ERROR == bytesSent)
+		if (ClientInput != 4 && ClientInput != 5)
 		{
-			cout << "Time Client: Error at sendto(): " << WSAGetLastError() << endl;
-			closesocket(connSocket);
-			WSACleanup();
-			return;
+			bytesSent = sendto(connSocket, sendBuff, (int)strlen(sendBuff), 0, (const sockaddr*)&server, sizeof(server));
+			if (SOCKET_ERROR == bytesSent)
+			{
+				cout << "Time Client: Error at sendto(): " << WSAGetLastError() << endl;
+				closesocket(connSocket);
+				WSACleanup();
+				return;
+			}
+
+			cout << "Time Client: Sent: " << bytesSent << "/" << strlen(sendBuff) << " bytes of \"" << sendBuff << "\" message.\n";
+
+			// Gets the server's answer using simple recieve (no need to hold the server's address).
+			bytesRecv = recv(connSocket, recvBuff, 255, 0);
+			if (SOCKET_ERROR == bytesRecv)
+			{
+				cout << "Time Client: Error at recv(): " << WSAGetLastError() << endl;
+				closesocket(connSocket);
+				WSACleanup();
+				return;
+			}
+			recvBuff[bytesRecv] = '\0'; // Add the null-terminating to make it a string.
+			cout << "Time Client: Recieved: " << bytesRecv << " bytes of \"" << recvBuff << "\" message.\n";
 		}
-
-		cout << "Time Client: Sent: " << bytesSent << "/" << strlen(sendBuff) << " bytes of \"" << sendBuff << "\" message.\n";
-
-		// Gets the server's answer using simple recieve (no need to hold the server's address).
-		bytesRecv = recv(connSocket, recvBuff, 255, 0);
-		if (SOCKET_ERROR == bytesRecv)
+		else if (ClientInput == 4) // sendBuff = "4".
 		{
-			cout << "Time Client: Error at recv(): " << WSAGetLastError() << endl;
-			closesocket(connSocket);
-			WSACleanup();
-			return;
-		}
+			for (int i = 0; i < 100; i++)
+			{
+				bytesSent = sendto(connSocket, sendBuff, (int)strlen(sendBuff), 0, (const sockaddr*)&server, sizeof(server));
+				if (SOCKET_ERROR == bytesSent)
+				{
+					cout << "Time Client: Error at sendto(): " << WSAGetLastError() << endl;
+					closesocket(connSocket);
+					WSACleanup();
+					return;
+				}
+			}
+			int time = -1, AvgTime = 0;
+			for (int i = 0; i < 100; i++)
+			{
+				// Gets the server's answer using simple recieve (no need to hold the server's address).
+				bytesRecv = recv(connSocket, recvBuff, 255, 0);
+				if (SOCKET_ERROR == bytesRecv)
+				{
+					cout << "Time Client: Error at recv(): " << WSAGetLastError() << endl;
+					closesocket(connSocket);
+					WSACleanup();
+					return;
+				}
+				recvBuff[bytesRecv] = '\0'; // Add the null-terminating to make it a string.
 
-		recvBuff[bytesRecv] = '\0'; // Add the null-terminating to make it a string
-		cout << "Time Client: Recieved: " << bytesRecv << " bytes of \"" << recvBuff << "\" message.\n";
+				if (time == -1) // Firt request.
+					time = stoi(recvBuff);
+				else
+				{
+					AvgTime += stoi(recvBuff) - time;
+					time = stoi(recvBuff);
+				}
+
+			}
+			AvgTime /= 100;
+			cout << "Time Client: The average of the 100 requests is: " << AvgTime << ". \n";
+		}
+		else if (ClientInput == 5) // sendBuff = "5".
+		{
+			DWORD sendTime, reciveTime, AvgTime = 0;
+			for (int i = 0; i < 100; i++)
+			{
+				bytesSent = sendto(connSocket, sendBuff, (int)strlen(sendBuff), 0, (const sockaddr*)&server, sizeof(server));
+				if (SOCKET_ERROR == bytesSent)
+				{
+					cout << "Time Client: Error at sendto(): " << WSAGetLastError() << endl;
+					closesocket(connSocket);
+					WSACleanup();
+					return;
+				}
+				sendTime = GetTickCount(); // Get the time the request sended.
+
+				// Gets the server's answer using simple recieve (no need to hold the server's address).
+				bytesRecv = recv(connSocket, recvBuff, 255, 0);
+				if (SOCKET_ERROR == bytesRecv)
+				{
+					cout << "Time Client: Error at recv(): " << WSAGetLastError() << endl;
+					closesocket(connSocket);
+					WSACleanup();
+					return;
+				}
+				recvBuff[bytesRecv] = '\0'; // Add the null-terminating to make it a string.
+				reciveTime = GetTickCount(); // Get the time the response accepted.
+
+				AvgTime += reciveTime - sendTime;
+			}
+			AvgTime /= 100;
+			cout << "Time Client: The average of the 100 RTT's is: " << AvgTime << ". \n";
+		}
 	}
 
 	// Closing connections and Winsock.
