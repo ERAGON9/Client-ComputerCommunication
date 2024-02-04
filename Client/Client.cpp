@@ -87,7 +87,6 @@ void main()
 				PrintCities();
 				cin >> city;
 			}
-
 			if (ClientInput == 14)
 				exit(0);
 			cout << "\n";
@@ -135,7 +134,7 @@ void main()
 				return;
 			}
 			recvBuff[bytesRecv] = '\0'; // Add the null-terminating to make it a string.
-			cout << "Time Client: Recieved: " << bytesRecv << " bytes of \"" << recvBuff << "\" message.\n";
+			cout << "Time Client: Recieved: " << bytesRecv << " bytes of \"" << recvBuff << "\" message.\n\n";
 		}
 		else if (ClientInput == 4) // sendBuff = "4".
 		{
@@ -171,10 +170,9 @@ void main()
 					AvgTime += stoi(recvBuff) - time;
 					time = stoi(recvBuff);
 				}
-
 			}
 			AvgTime /= 100;
-			cout << "Time Client: The average of the 100 requests is: " << AvgTime << ". \n";
+			cout << "Time Client: The average of the 100 requests is: " << AvgTime << ". \n\n";
 		}
 		else if (ClientInput == 5) // sendBuff = "5".
 		{
@@ -206,7 +204,7 @@ void main()
 				AvgTime += reciveTime - sendTime;
 			}
 			AvgTime /= 100;
-			cout << "Time Client: The average of the 100 RTT's is: " << AvgTime << ". \n";
+			cout << "Time Client: The average of the 100 RTT's is: " << AvgTime << ". \n\n";
 		}
 	}
 
