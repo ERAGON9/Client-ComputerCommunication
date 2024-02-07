@@ -122,8 +122,6 @@ void main()
 				return;
 			}
 
-			cout << "Time Client: Sent: " << bytesSent << "/" << strlen(sendBuff) << " bytes of \"" << sendBuff << "\" message.\n";
-
 			// Gets the server's answer using simple recieve (no need to hold the server's address).
 			bytesRecv = recv(connSocket, recvBuff, 255, 0);
 			if (SOCKET_ERROR == bytesRecv)
@@ -134,7 +132,7 @@ void main()
 				return;
 			}
 			recvBuff[bytesRecv] = '\0'; // Add the null-terminating to make it a string.
-			cout << "Time Client: Recieved: " << bytesRecv << " bytes of \"" << recvBuff << "\" message.\n\n";
+			cout << "Time Client: Received: " << bytesRecv << " bytes of \"" << recvBuff << "\" message.\n\n";
 		}
 		else if (ClientInput == 4) // sendBuff = "4".
 		{
@@ -172,7 +170,7 @@ void main()
 				}
 			}
 			AvgTime /= 100;
-			cout << "Time Client: The average of the 100 requests is: " << AvgTime << ". \n\n";
+			cout << "Time Client: The average of the 100 requests is: " << AvgTime << " milliseconds. \n\n";
 		}
 		else if (ClientInput == 5) // sendBuff = "5".
 		{
@@ -204,7 +202,7 @@ void main()
 				AvgTime += reciveTime - sendTime;
 			}
 			AvgTime /= 100;
-			cout << "Time Client: The average of the 100 RTT's is: " << AvgTime << ". \n\n";
+			cout << "Time Client: The average of the 100 RTT's is: " << AvgTime << " milliseconds. \n\n";
 		}
 	}
 
